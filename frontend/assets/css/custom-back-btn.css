@@ -1,0 +1,22 @@
+.back-btn {
+  background: #333;
+  border: 1px solid #333;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0;
+  color: white;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-weight: 400;
+}
+.back-btn:hover {
+  background: white;
+  color: #333;
+  border-color: #333;
+  text-decoration: none;
+}

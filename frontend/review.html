@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Review Details</title>
+  <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/responsive.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <style>
+    body {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      background-color: #fff;
+      color: #333;
+      line-height: 1.6;
+      padding-top: 80px;
+    }
+    .container {
+      max-width: 1200px;
+    }
+    .review-header {
+      background: #fff;
+      color: #000;
+      padding: 2rem;
+      border: 1px solid #000;
+      border-radius: 0;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+    .review-header h1 {
+      font-size: 1.8rem;
+      font-weight: 400;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+    .review-header p {
+      font-size: 0.9rem;
+      font-weight: 300;
+      margin-bottom: 0;
+      color: #666;
+    }
+    .review-card {
+      background: white;
+      border: 1px solid #f0f0f0;
+      border-radius: 0;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      margin-bottom: 2rem;
+      transition: all 0.3s ease;
+    }
+    .review-card:hover {
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      border-color: #333;
+    }
+    .review-card .card-body {
+      padding: 2.5rem;
+    }
+    .review-card .card-title {
+      font-size: 1.3rem;
+      font-weight: 400;
+      color: #333;
+      margin-bottom: 1.5rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    .item-card {
+      border: 1px solid #f0f0f0;
+      border-radius: 0;
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+      transition: all 0.3s ease;
+      background: white;
+    }
+    .item-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      border-color: #333;
+    }
+    .item-image {
+      width: 120px;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 0;
+      border: 1px solid #f0f0f0;
+      transition: transform 0.3s ease;
+    }
+    .item-card:hover .item-image {
+      transform: scale(1.05);
+    }
+    .rating-stars {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 1.5rem;
+    }
+    .star {
+      font-size: 1.8rem;
+      color: #dee2e6;
+      cursor: pointer;
+      transition: color 0.3s ease;
+    }
+    .star.active {
+      color: #000;
+    }
+    .star.empty {
+      color: #dee2e6;
+    }
+    .star:hover {
+      color: #000;
+    }
+    /* Static stars (display only, not interactive) */
+    .static-star {
+      cursor: default;
+      transition: color 0.3s;
+    }
+    .static-star.filled {
+      color: #ffc107;
+    }
+    .static-star.empty {
+      color: #dee2e6;
+    }
+    .review-text {
+      background: #f8f9fa;
+      border: 1px solid #e9ecef;
+      border-radius: 0;
+      padding: 1rem;
+      margin: 1rem 0;
+      font-style: italic;
+    }
+    .review-images {
+      display: flex;
+      gap: 10px;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+    }
+    .review-image {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 0;
+      border: 1px solid #f0f0f0;
+      cursor: pointer;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .review-image:hover {
+      transform: scale(1.05);
+      border-color: #333;
+    }
+    .back-btn {
+      background: #333;
+      border: 1px solid #333;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0;
+      color: white;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.3s ease;
+      font-size: 0.9rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-weight: 400;
+    }
+    .back-btn:hover {
+      background: white;
+      color: #333;
+      border-color: #333;
+      text-decoration: none;
+    }
+    .loading {
+      text-align: center;
+      padding: 4rem;
+      color: #666;
+    }
+    .loading i {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+    .error {
+      background: #f8f9fa;
+      color: #333;
+      padding: 1.5rem;
+      border-radius: 0;
+      margin: 1rem 0;
+      border: 1px solid #ddd;
+    }
+    .customer-info {
+      background: #e3f2fd;
+      border: 1px solid #bbdefb;
+      border-radius: 0;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    .no-images {
+      color: #6c757d;
+      font-style: italic;
+      text-align: center;
+      padding: 2rem;
+    }
+    .edit-btn, .save-btn, .cancel-btn {
+      background: #333;
+      border: 1px solid #333;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0;
+      color: white;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.3s ease;
+      font-size: 0.9rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-weight: 400;
+      margin-right: 0.5rem;
+    }
+    .edit-btn:hover, .save-btn:hover, .cancel-btn:hover {
+      background: white;
+      color: #333;
+      border-color: #333;
+      text-decoration: none;
+    }
+    .edit-form {
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 0;
+      padding: 2rem;
+      margin: 1rem 0;
+    }
+    .rating-input {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    .rating-input .star {
+      cursor: pointer;
+      font-size: 2rem;
+      transition: color 0.2s;
+    }
+    .rating-input .star:hover,
+    .rating-input .star.active {
+      color: #000;
+    }
+    .review-textarea {
+      width: 100%;
+      min-height: 120px;
+      border: 1px solid #f0f0f0;
+      border-radius: 0;
+      padding: 1rem;
+      font-family: inherit;
+      resize: vertical;
+      font-size: 0.9rem;
+    }
+    .review-textarea:focus {
+      border-color: #333;
+      box-shadow: none;
+      outline: none;
+    }
+    .edit-mode .review-text {
+      display: none;
+    }
+    .edit-mode .edit-form {
+      display: block;
+    }
+    .view-mode .edit-form {
+      display: none;
+    }
+    /* Image editing styles */
+    .image-edit-section {
+      border: 1px solid #f0f0f0;
+      border-radius: 0;
+      padding: 1rem;
+      margin: 1rem 0;
+      background: #f8f9fa;
+    }
+    .current-images {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+    .edit-image-container {
+      position: relative;
+      display: inline-block;
+    }
+    .edit-image {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 0;
+      border: 1px solid #f0f0f0;
+    }
+    .remove-image-btn {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background: #dc3545;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      font-size: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .remove-image-btn:hover {
+      background: #c82333;
+    }
+    .add-images-btn {
+      background: #28a745;
+      border: 1px solid #28a745;
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 0;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 0.9rem;
+    }
+    .add-images-btn:hover {
+      background: #218838;
+      border-color: #218838;
+    }
+    .image-upload-input {
+      display: none;
+    }
+    .no-images-edit {
+      color: #6c757d;
+      font-style: italic;
+      text-align: center;
+      padding: 1rem;
+      border: 2px dashed #dee2e6;
+      margin-bottom: 1rem;
+    }
+    /* jQuery notification styles */
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 15px 20px;
+      border-radius: 4px;
+      color: white;
+      font-weight: 500;
+      z-index: 9999;
+      min-width: 300px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      display: none;
+    }
+    .notification.success {
+      background-color: #28a745;
+      border-left: 4px solid #1e7e34;
+    }
+    .notification.error {
+      background-color: #dc3545;
+      border-left: 4px solid #c82333;
+    }
+    .notification.warning {
+      background-color: #ffc107;
+      border-left: 4px solid #e0a800;
+      color: #212529;
+    }
+    .notification .close-btn {
+      float: right;
+      background: none;
+      border: none;
+      color: inherit;
+      font-size: 18px;
+      cursor: pointer;
+      margin-left: 10px;
+    }
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .review-header {
+        padding: 1.5rem 1rem;
+      }
+      .review-header h1 {
+        font-size: 1.5rem;
+      }
+      .review-card .card-body {
+        padding: 1.5rem;
+      }
+      .item-card {
+        padding: 1.5rem;
+      }
+      .item-image {
+        width: 100px;
+        height: 100px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="header"></div>
+  <script src="assets/js/vendor/jquery-3.3.1.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      $('#header').load('header.html', function() {
+        // Header loaded successfully
+        console.log('Header loaded');
+      });
+    });
+  </script>
+  <div class="container">
+    <!-- Back Button -->
+    <div class="mb-3">
+      <a href="javascript:history.back()" class="back-btn">
+        <i class="fas fa-arrow-left"></i> Back
+      </a>
+    </div>
+
+
+    <!-- Loading State -->
+    <div id="loading" class="loading">
+      <i class="fas fa-spinner fa-spin fa-2x mb-3"></i>
+      <p>Loading review details...</p>
+    </div>
+
+
+    <!-- Error State -->
+    <div id="error" class="error" style="display: none;">
+      <i class="fas fa-exclamation-triangle"></i>
+      <span id="errorMessage"></span>
+    </div>
+
+
+    <!-- Review Content -->
+    <div id="reviewContent" style="display: none;">
+      <!-- Review Header -->
+      <div class="review-header">
+        <div class="row align-items-center">
+          <div class="col-md-8">
+            <h1 class="mb-2">
+              <i class="fas fa-star me-3"></i>
+              Review Details
+            </h1>
+            <p class="mb-0">
+              <i class="fas fa-calendar me-2"></i>
+              Reviewed on <span id="reviewDate"></span>
+            </p>
+          </div>
+          <div class="col-md-4 text-md-end">
+            <div id="ratingDisplay" class="rating-stars"></div>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="row">
+        <!-- Review Details -->
+        <div class="col-lg-8">
+          <div class="review-card">
+            <div class="card-body">
+              <h4 class="card-title mb-4">
+                <i class="fas fa-box me-2"></i>
+                Item Information
+              </h4>
+              <div id="itemContainer"></div>
+            </div>
+          </div>
+
+
+          <div class="review-card">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="card-title mb-0">
+                  <i class="fas fa-comment me-2"></i>
+                  Review Content
+                </h4>
+                <div id="editButtons" style="display: none;">
+                  <button id="editBtn" class="edit-btn">
+                    <i class="fas fa-edit"></i> Edit Review
+                  </button>
+                </div>
+              </div>
+             
+              <div id="reviewContent" class="view-mode">
+                <div id="reviewText" class="review-text"></div>
+               
+                <!-- Edit Form (hidden by default) -->
+                <div id="editForm" class="edit-form" style="display: none;">
+                  <h5 class="mb-3">Edit Your Review</h5>
+                 
+                  <div class="rating-input">
+                    <label class="me-2"><strong>Rating:</strong></label>
+                    <div id="editRatingStars">
+                      <i class="fas fa-star star" data-rating="1"></i>
+                      <i class="fas fa-star star" data-rating="2"></i>
+                      <i class="fas fa-star star" data-rating="3"></i>
+                      <i class="fas fa-star star" data-rating="4"></i>
+                      <i class="fas fa-star star" data-rating="5"></i>
+                    </div>
+                    <span id="editRatingText" class="ms-2">5 stars</span>
+                  </div>
+                 
+                  <div class="mb-3">
+                    <label for="editReviewText" class="form-label"><strong>Review Text:</strong></label>
+                    <textarea id="editReviewText" class="review-textarea" placeholder="Share your thoughts about this item..."></textarea>
+                  </div>
+                 
+                  <!-- Image editing section -->
+                  <div class="image-edit-section">
+                    <label for="reviewImageInput"><strong>Review Images</strong> <small class="text-muted">(Select multiple images)</small></label>
+                    <input type="file" class="form-control" id="reviewImageInput" name="newImages" multiple accept="image/*" />
+                    <small class="form-text text-muted">Select new images to replace current ones, or leave empty to keep current images.</small>
+                    <div id="currentImagesPreview" class="mt-2"></div>
+                    <div id="newImagesPreview" class="mt-2"></div>
+                  </div>
+                 
+                  <div class="d-flex gap-2">
+                    <button id="saveBtn" class="save-btn">
+                      <i class="fas fa-save"></i> Save Changes
+                    </button>
+                    <button id="cancelBtn" class="cancel-btn">
+                      <i class="fas fa-times"></i> Cancel
+                    </button>
+                  </div>
+                </div>
+              </div>
+             
+              <h5 class="mt-4 mb-3">
+                <i class="fas fa-images me-2"></i>
+                Review Images
+              </h5>
+              <div id="reviewImages" class="review-images"></div>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- Review Summary -->
+        <div class="col-lg-4">
+          <div class="review-card">
+            <div class="card-body">
+              <h4 class="card-title mb-4">
+                <i class="fas fa-info-circle me-2"></i>
+                Review Summary
+              </h4>
+             
+              <div class="customer-info">
+                <h6><i class="fas fa-user me-2"></i>Customer Information</h6>
+                <div id="customerInfo"></div>
+              </div>
+
+
+              <div class="mb-3">
+                <strong>Order ID:</strong>
+                <div id="orderId" class="mt-1"></div>
+              </div>
+
+
+              <div class="mb-3">
+                <strong>Item ID:</strong>
+                <div id="itemId" class="mt-1"></div>
+              </div>
+
+
+              <div class="mb-3">
+                <strong>Rating:</strong>
+                <div id="ratingText" class="mt-1"></div>
+              </div>
+
+
+              <div class="mb-3">
+                <strong>Review Date:</strong>
+                <div id="reviewDateText" class="mt-1"></div>
+              </div>
+
+
+              <div class="mb-3">
+                <strong>Images:</strong>
+                <div id="imageCount" class="mt-1"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Image Modal -->
+  <div class="modal fade" id="imageModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Review Image</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body text-center">
+          <img id="modalImage" src="" class="img-fluid" alt="Review Image">
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <script src="assets/js/bootstrap.min.js"></script>
+  <script>
+    // Load header and update navbar
+    $(document).ready(function() {
+      $('#header').load('header.html', function() {
+        console.log('Header loaded');
+        updateNavbar();
+      });
+    });
+
+
+    function updateNavbar() {
+      const token = localStorage.getItem('token');
+      const userId = localStorage.getItem('userId');
+
+
+      if (token && userId) {
+        $('#login-link, #register-link').addClass('d-none');
+        $('#user-dropdown').removeClass('d-none');
+
+
+        // Fetch user data
+        $.get(`/api/users/customers/${userId}`, function (res) {
+          if (res.success && res.data) {
+            const data = res.data;
+            const fullName = `${data.fname || ''} ${data.lname || ''}`.trim();
+            $('#username').text(fullName || 'USER');
+            if (data.image_path) {
+              $('.profile-img').attr('src', `/${data.image_path}`);
+            }
+          }
+        }).fail(() => {
+          console.warn('User data fetch failed. Falling back to default user.');
+          $('#username').text('USER');
+        });
+
+
+      } else {
+        $('#login-link, #register-link').removeClass('d-none');
+        $('#user-dropdown').addClass('d-none');
+      }
+    }
+
+
+    // Get review ID from URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const reviewId = urlParams.get('id');
+
+
+    if (!reviewId) {
+      showError('No review ID provided');
+    } else {
+      loadReviewDetails(reviewId);
+    }
+
+
+    function loadReviewDetails(reviewId) {
+      console.log('Loading review details for ID:', reviewId);
+      $.get(`/api/reviews/${reviewId}`, function(response) {
+        console.log('API Response:', response);
+        if (response.success) {
+          displayReview(response.data);
+        } else {
+          showError(response.message || 'Failed to load review details');
+        }
+      }).fail(function(xhr, status, error) {
+        console.error('API Error:', {xhr, status, error});
+        console.error('Response text:', xhr.responseText);
+        showError('Failed to load review details. Please try again.');
+      });
+    }
+
+
+    function displayReview(review) {
+      // Store review data for editing
+      currentReview = review;
+     
+      // Hide loading, show content
+      $('#loading').hide();
+      $('#reviewContent').show();
+
+
+      // Set basic review info
+      $('#reviewDate').text(formatDate(review.created_at));
+      $('#reviewDateText').text(formatDate(review.created_at));
+      $('#orderId').text(review.orderinfo_id);
+      $('#itemId').text(review.item_id);
+      $('#ratingText').text(`${review.rating}/5 stars`);
+
+
+      // Display rating stars
+      const starsHtml = generateStars(review.rating);
+      $('#ratingDisplay').html(starsHtml);
+
+
+      // Display review text
+      if (review.review_text && review.review_text.trim()) {
+        $('#reviewText').text(review.review_text);
+      } else {
+        $('#reviewText').html('<em class="text-muted">No review text provided</em>');
+      }
+
+
+      // Display customer info
+      if (review.customer_name) {
+        $('#customerInfo').html(`
+          <div><strong>Name:</strong> ${review.customer_name}</div>
+          <div><strong>Email:</strong> ${review.customer_email || 'N/A'}</div>
+        `);
+      } else {
+        $('#customerInfo').html('<em class="text-muted">Customer information not available</em>');
+      }
+
+
+      // Display item information
+      const itemHtml = `
+        <div class="item-card">
+          <div class="row align-items-center">
+              <h6 class="mb-1">${review.item_name || 'Item Name Not Available'}</h6>
+              <p class="text-muted mb-0">Item ID: ${review.item_id}</p>
+              </div>
+        </div>
+      `;
+      $('#itemContainer').html(itemHtml);
+
+
+      // Display review images
+if (review.images && review.images.length > 0) {
+  const imagesHtml = review.images.map(img => {
+    // Remove any leading slashes or backslashes
+    const cleanImgPath = img.replace(/^[\\/]/, '');
+    // Check if the path already contains 'reviews' directory
+    const imagePath = cleanImgPath.includes('reviews/') 
+      ? `/uploads/${cleanImgPath}` 
+      : `/uploads/reviews/${cleanImgPath}`;
+    return `
+      <div style="display: inline-block; margin: 5px; width: 100px; height: 100px; overflow: hidden; border: 1px solid #ddd;">
+        <img src="${imagePath}" 
+             class="review-image img-thumbnail" 
+             style="width: 100%; height: 100%; object-fit: cover; cursor: pointer;"
+             onclick="openImageModal('${imagePath}')" 
+             alt="Review Image"
+             onerror="this.onerror=null; this.src='/assets/images/placeholder.jpg';">
+      </div>`;
+  }).join('');
+  $('#reviewImages').html(imagesHtml);
+  $('#imageCount').text(`${review.images.length} image(s)`);
+} else {
+  $('#reviewImages').html('<div class="no-images text-muted"><i class="far fa-images fa-2x mb-2"></i><br>No images provided with this review</div>');
+  $('#imageCount').text('0 images');
+}
+
+
+      // Check if user can edit this review
+      if (checkIfUserCanEdit(review)) {
+        showEditButton();
+      } else {
+        hideEditButton();
+      }
+    }
+
+
+    function generateStars(rating) {
+      let starsHtml = '';
+      for (let i = 1; i <= 5; i++) {
+        if (i <= rating) {
+          starsHtml += '<i class="fas fa-star star static-star filled"></i>';
+        } else {
+          starsHtml += '<i class="fas fa-star star static-star empty"></i>';
+        }
+      }
+      return starsHtml;
+    }
+
+
+    function formatDate(dateString) {
+      if (!dateString) return 'N/A';
+      return new Date(dateString).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+
+
+    function showError(message) {
+      $('#loading').hide();
+      $('#errorMessage').text(message);
+      $('#error').show();
+    }
+
+
+    function openImageModal(imagePath) {
+      $('#modalImage').attr('src', `/uploads/reviews/${imagePath}`);
+      $('#imageModal').modal('show');
+    }
+
+
+    // Edit functionality
+    let currentReview = null;
+    let currentRating = 5;
+
+
+    function checkIfUserCanEdit(review) {
+      const userId = localStorage.getItem('userId') || sessionStorage.getItem('userId');
+      if (!userId) {
+        return false;
+      }
+     
+      // Check if the review belongs to the current user
+      return review.user_id && review.user_id.toString() === userId.toString();
+    }
+
+
+    function showEditButton() {
+      $('#editButtons').show();
+    }
+
+
+    function hideEditButton() {
+      $('#editButtons').hide();
+    }
+
+
+    function enterEditMode() {
+      $('#reviewContent').removeClass('view-mode').addClass('edit-mode');
+      $('#editForm').show();
+      $('#reviewText').hide();
+     
+      // Set current values
+      $('#editReviewText').val(currentReview.review_text || '');
+      setEditRating(currentReview.rating);
+     
+      // Clear image input and show current images
+      $('#reviewImageInput').val('');
+      showCurrentImagesPreview();
+      $('#newImagesPreview').empty();
+    }
+
+
+    function showCurrentImagesPreview() {
+      const container = $('#currentImagesPreview');
+     
+      if (currentReview.images && currentReview.images.length > 0) {
+        const imagesHtml = currentReview.images.map(img => `
+          <div class="d-inline-block mr-2 mb-2">
+            <img src="/uploads/reviews/${img}" width="100" height="100" class="border rounded" style="object-fit: cover;" />
+            <div class="text-center mt-1">
+              <small class="text-muted">${img}</small>
+            </div>
+          </div>
+        `).join('');
+       
+        container.html(`
+          <p class="text-info mb-2"><strong>Current Images:</strong></p>
+          ${imagesHtml}
+          <div class="mt-2">
+            <small class="text-warning">
+              <i class="fas fa-info-circle"></i>
+              Select new images to replace current ones, or leave empty to keep current images.
+            </small>
+          </div>
+        `);
+      } else {
+        container.html('<p class="text-muted">No images currently uploaded.</p>');
+      }
+    }
+
+
+    // Image preview handler (following item.html pattern)
+    $('#reviewImageInput').on('change', function() {
+      const files = this.files;
+      const preview = $('#newImagesPreview');
+      preview.empty();
+     
+      if (files.length > 0) {
+        preview.append('<p class="text-info mb-2"><strong>Selected Images:</strong></p>');
+       
+        Array.from(files).forEach((file, index) => {
+          if (file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+              preview.append(`
+                <div class="d-inline-block mr-2 mb-2">
+                  <img src="${e.target.result}" width="100" height="100" class="border rounded" style="object-fit: cover;" />
+                  <div class="text-center mt-1">
+                    <small class="text-muted">${file.name}</small>
+                  </div>
+                </div>
+              `);
+            };
+            reader.readAsDataURL(file);
+          }
+        });
+       
+        if (files.length > 1) {
+          preview.append(`
+            <div class="mt-2">
+              <small class="text-warning">
+                <i class="fas fa-info-circle"></i>
+                ${files.length} images selected. These will replace all current images.
+              </small>
+            </div>
+          `);
+        }
+      }
+    });
+
+
+    function exitEditMode() {
+      $('#reviewContent').removeClass('edit-mode').addClass('view-mode');
+      $('#editForm').hide();
+      $('#reviewText').show();
+     
+      // Clear preview containers
+      $('#currentImagesPreview').empty();
+      $('#newImagesPreview').empty();
+      $('#reviewImageInput').val('');
+    }
+
+
+
+
+
+
+    function updateImageDisplay() {
+      // Update the main review images display
+      if (currentReview.images && currentReview.images.length > 0) {
+        const imagesHtml = currentReview.images.map(img => `
+          <img src="/uploads/reviews/${img}" class="review-image" onclick="openImageModal('/uploads/reviews/${img}')" alt="Review Image">
+        `).join('');
+        $('#reviewImages').html(imagesHtml);
+        $('#imageCount').text(`${currentReview.images.length} image(s)`);
+      } else {
+        $('#reviewImages').html('<div class="no-images">No images provided with this review</div>');
+        $('#imageCount').text('0 images');
+      }
+    }
+
+
+    // jQuery notification functions
+    function showNotification(message, type = 'success', duration = 4000) {
+      // Remove any existing notifications
+      $('.notification').remove();
+     
+      // Create notification element
+      const notification = $(`
+        <div class="notification ${type}">
+          <span>${message}</span>
+          <button class="close-btn" onclick="$(this).parent().fadeOut()">&times;</button>
+        </div>
+      `);
+     
+      // Add to body and show
+      $('body').append(notification);
+      notification.fadeIn();
+     
+      // Auto hide after duration
+      setTimeout(() => {
+        notification.fadeOut(() => {
+          notification.remove();
+        });
+      }, duration);
+    }
+
+
+    function showSuccess(message) {
+      showNotification(message, 'success');
+    }
+
+
+    function showError(message) {
+      showNotification(message, 'error', 6000);
+    }
+
+
+    function showWarning(message) {
+      showNotification(message, 'warning', 5000);
+    }
+
+
+    function setEditRating(rating) {
+      currentRating = rating;
+      $('#editRatingStars .star').each(function(index) {
+        const starRating = index + 1;
+        if (starRating <= rating) {
+          $(this).removeClass('empty').addClass('active');
+        } else {
+          $(this).removeClass('active').addClass('empty');
+        }
+      });
+      $('#editRatingText').text(`${rating} star${rating !== 1 ? 's' : ''}`);
+    }
+
+
+    function saveReviewChanges() {
+      const newRating = currentRating;
+      const newReviewText = $('#editReviewText').val().trim();
+     
+      if (!newRating) {
+        showError('Please select a rating');
+        return;
+      }
+
+
+      // Disable save button
+      $('#saveBtn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Saving...');
+
+
+      const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+     
+      // Create FormData for handling both text and file uploads
+      const formData = new FormData();
+      formData.append('rating', newRating);
+      formData.append('review_text', newReviewText);
+     
+      // Add new images if any are selected (this will replace all current images)
+      const imageFiles = $('#reviewImageInput')[0].files;
+      if (imageFiles.length > 0) {
+        // If new images are selected, they will replace all current images
+        Array.from(imageFiles).forEach((file) => {
+          formData.append('newImages', file);
+        });
+        // Signal to replace all images
+        formData.append('replaceAllImages', 'true');
+      }
+     
+      $.ajax({
+        url: `/api/reviews/${reviewId}`,
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function(response) {
+          if (response.success) {
+            // Update the displayed review
+            currentReview.rating = newRating;
+            currentReview.review_text = newReviewText;
+           
+            // Update images if returned from server
+            if (response.data && response.data.images) {
+              currentReview.images = response.data.images;
+            }
+           
+            // Update display
+            $('#ratingDisplay').html(generateStars(newRating));
+            $('#ratingText').text(`${newRating}/5 stars`);
+           
+            if (newReviewText && newReviewText.trim()) {
+              $('#reviewText').text(newReviewText);
+            } else {
+              $('#reviewText').html('<em class="text-muted">No review text provided</em>');
+            }
+           
+            // Update image display
+            updateImageDisplay();
+           
+            // Exit edit mode
+            exitEditMode();
+           
+            // Show success message
+            showSuccess('Review updated successfully!');
+          } else {
+            showError(response.message || 'Failed to update review');
+          }
+        },
+        error: function(xhr) {
+          console.error('Update error:', xhr);
+          let errorMessage = 'Failed to update review';
+          if (xhr.responseJSON && xhr.responseJSON.message) {
+            errorMessage = xhr.responseJSON.message;
+          } else if (xhr.status === 401) {
+            errorMessage = 'Please log in to edit your review';
+          } else if (xhr.status === 403) {
+            errorMessage = 'You can only edit your own reviews';
+          }
+          showError(errorMessage);
+        },
+        complete: function() {
+          $('#saveBtn').prop('disabled', false).html('<i class="fas fa-save"></i> Save Changes');
+        }
+      });
+    }
+
+
+    // Event listeners for edit functionality
+    $(document).ready(function() {
+      // Edit button click
+      $(document).on('click', '#editBtn', function() {
+        enterEditMode();
+      });
+
+
+      // Cancel button click
+      $(document).on('click', '#cancelBtn', function() {
+        exitEditMode();
+      });
+
+
+      // Save button click
+      $(document).on('click', '#saveBtn', function() {
+        saveReviewChanges();
+      });
+
+
+      // Rating stars click in edit mode
+      $(document).on('click', '#editRatingStars .star', function() {
+        const rating = parseInt($(this).data('rating'));
+        setEditRating(rating);
+      });
+
+
+      // Rating stars hover in edit mode
+      $(document).on('mouseenter', '#editRatingStars .star', function() {
+        const rating = parseInt($(this).data('rating'));
+        $('#editRatingStars .star').each(function(index) {
+          const starRating = index + 1;
+          if (starRating <= rating) {
+            $(this).removeClass('empty').addClass('active');
+          } else {
+            $(this).removeClass('active').addClass('empty');
+          }
+        });
+      });
+
+
+      $(document).on('mouseleave', '#editRatingStars', function() {
+        setEditRating(currentRating);
+      });
+     
+      // Image preview is now handled by the direct event listener above
+      // No additional event listener needed
+    });
+  </script>
+</body>
+</html>

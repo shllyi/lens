@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="source-map" content="none">
+    <title>Admin Dashboard - Lensheem</title>
+    <!-- Existing CSS links -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.16.1/sweetalert2.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        /* Copy relevant styles from admin-orders.html */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #ffffff;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .admin-container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .admin-main {
+            flex: 1;
+            background: #fafafa;
+            display: flex;
+        }
+
+        /* Sidebar Styles - Copied from admin-orders.html */
+        .admin-sidebar {
+            width: 280px;
+            background: white;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 2px 0 15px rgba(0,0,0,0.05);
+            border-right: 1px solid #f0f0f0;
+        }
+
+        .admin-logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 40px;
+            padding: 15px;
+            background: linear-gradient(135deg, #fff9c4, #fff59d);
+            border-radius: 15px;
+            border: 1px solid #ffe082;
+        }
+
+        .admin-logo-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #ffc107, #ff9800);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: bold;
+            color: white;
+            box-shadow: 0 4px 15px rgba(255,193,7,0.3);
+        }
+
+        .admin-logo-text {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .admin-nav {
+            flex: 1;
+        }
+
+        .nav-section {
+            margin-bottom: 30px;
+        }
+
+        .nav-section-title {
+            font-size: 12px;
+            text-transform: uppercase;
+            color: #999;
+            margin-bottom: 15px;
+            padding-left: 10px;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .sidebar-nav-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 15px;
+            margin-bottom: 5px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #666;
+            text-decoration: none;
+        }
+
+        .sidebar-nav-item:hover {
+            background: #fff9c4;
+            color: #333;
+            transform: translateX(5px);
+        }
+
+        .sidebar-nav-item.active {
+            background: linear-gradient(135deg, #ffc107, #ff9800);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255,193,7,0.3);
+        }
+
+        .sidebar-nav-item i {
+            width: 20px;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .sidebar-nav-item-text {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* Dashboard specific styles */
+        .dashboard-container {
+            padding: 30px;
+            width: 100%;
+        }
+
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border: 1px solid #f0f0f0;
+            overflow: hidden;
+        }
+
+        .chart-header {
+            padding: 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .chart-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin: 0;
+        }
+
+        .chart-body {
+            padding: 20px;
+        }
+
+        canvas {
+            width: 100% !important;
+            height: 300px !important;
+        }
+
+        /* Page Header */
+        .page-header {
+            padding: 30px;
+            background: white;
+            border-bottom: 1px solid #f0f0f0;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.08);
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #333;
+            margin: 0;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .admin-sidebar {
+                width: 70px;
+                padding: 15px 10px;
+            }
+
+            .admin-logo-text,
+            .sidebar-nav-item-text,
+            .nav-section-title {
+                display: none;
+            }
+
+            .admin-logo {
+                justify-content: center;
+                margin-bottom: 30px;
+            }
+
+            .sidebar-nav-item {
+                justify-content: center;
+                padding: 15px 10px;
+            }
+
+            .chart-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Include admin header -->
+        <iframe src="admin-header.html" style="width:100%;height:90px;border:none;" title="Admin Header"></iframe>
+
+        <div class="admin-main">
+            <!-- Sidebar - Copied from admin-orders.html -->
+            <div class="admin-sidebar">
+                <div class="admin-logo">
+                    <div class="admin-logo-icon">A</div>
+                    <div class="admin-logo-text">AdminPanel</div>
+                </div>
+
+                <nav class="admin-nav">
+                    <div class="nav-section">
+                        <div class="nav-section-title">Quick Actions</div>
+                        <a href="index-admin.html" class="sidebar-nav-item active">
+                            <i class="fas fa-tachometer-alt"></i>
+                            <span class="sidebar-nav-item-text">Dashboard</span>
+                        </a>
+                        <a href="user.html" class="sidebar-nav-item">
+                            <i class="fas fa-users"></i>
+                            <span class="sidebar-nav-item-text">People</span>
+                        </a>
+                        <a href="admin-orders.html" class="sidebar-nav-item">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span class="sidebar-nav-item-text">Orders</span>
+                        </a>
+                    </div>
+
+                    <div class="nav-section">
+                        <div class="nav-section-title">Management</div>
+                        <a href="admin-reviews.html" class="sidebar-nav-item">
+                            <i class="fas fa-star"></i>
+                            <span class="sidebar-nav-item-text">Reviews</span>
+                        </a>
+                        <a href="category.html" class="sidebar-nav-item">
+                            <i class="fas fa-list"></i>
+                            <span class="sidebar-nav-item-text">Categories</span>
+                        </a>
+                        <a href="item.html" class="sidebar-nav-item">
+                            <i class="fas fa-box"></i>
+                            <span class="sidebar-nav-item-text">Items</span>
+                        </a>
+                    </div>
+
+                    <div class="nav-section">
+                        <div class="nav-section-title">System</div>
+                        <a href="admin-settings.html" class="sidebar-nav-item">
+                            <i class="fas fa-cog"></i>
+                            <span class="sidebar-nav-item-text">Settings</span>
+                        </a>
+                        <a href="admin-backup.html" class="sidebar-nav-item">
+                            <i class="fas fa-database"></i>
+                            <span class="sidebar-nav-item-text">Backup</span>
+                        </a>
+                    </div>
+                </nav>
+            </div>
+
+            <!-- Dashboard Content -->
+            <div class="dashboard-container">
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h1 class="page-title">Dashboard Overview</h1>
+                </div>
+
+                <!-- Charts Grid -->
+                <div class="chart-grid">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Customers by Town</h3>
+                        </div>
+                        <div class="chart-body">
+                            <canvas id="addressChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Monthly Sales</h3>
+                        </div>
+                        <div class="chart-body">
+                            <canvas id="salesChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Items Sold Distribution</h3>
+                        </div>
+                        <div class="chart-body">
+                            <canvas id="itemsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Include admin footer -->
+        <iframe src="footer_admin.html" style="width:100%;border:none;" title="Admin Footer"></iframe>
+    </div>
+
+    <!-- Existing Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"></script>
+    <script src="https://unpkg.com/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <script src="assets/js/index-admin.js"></script>
+
+    <script>
+        async function createAddressChart(data) {
+            const ctx = document.getElementById('addressChart').getContext('2d');
+            try {
+                const response = await fetch('/api/admin/address-chart');
+                const result = await response.json();
+                
+                const chart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: result.rows.map(row => row.addressline),
+                        datasets: [{
+                            label: 'Customers per Town',
+                            data: result.rows.map(row => row.total),
+                            backgroundColor: 'rgba(255, 193, 7, 0.8)',
+                            borderColor: '#ffc107',
+                            borderWidth: 2,
+                            borderRadius: 5,
+                            barPercentage: 0.6,
+                            categoryPercentage: 0.8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top',
+                                labels: {
+                                    font: {
+                                        size: 12,
+                                        family: "'Segoe UI', sans-serif"
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.05)'
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error creating address chart:', error);
+            }
+        }
+
+        async function createSalesChart(data) {
+            const ctx = document.getElementById('salesChart').getContext('2d');
+            try {
+                const response = await fetch('/api/admin/sales-chart');
+                const result = await response.json();
+                
+                const chart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: result.rows.map(row => row.month),
+                        datasets: [{
+                            label: 'Monthly Sales (₱)',
+                            data: result.rows.map(row => row.total),
+                            fill: true,
+                            backgroundColor: 'rgba(255, 193, 7, 0.2)',
+                            borderColor: '#ffc107',
+                            tension: 0.4,
+                            pointBackgroundColor: '#fff',
+                            pointBorderColor: '#ffc107',
+                            pointBorderWidth: 2,
+                            pointRadius: 6,
+                            pointHoverRadius: 8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top'
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return '₱' + value.toLocaleString();
+                                    }
+                                },
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.05)'
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error creating sales chart:', error);
+            }
+        }
+
+        async function createItemsChart(data) {
+            const ctx = document.getElementById('itemsChart').getContext('2d');
+            try {
+                const response = await fetch('/api/admin/items-chart');
+                const result = await response.json();
+                
+                const chart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: result.rows.map(row => row.items),
+                        datasets: [{
+                            data: result.rows.map(row => row.total),
+                            backgroundColor: [
+                                '#ffc107',
+                                '#ff9800',
+                                '#ffeb3b',
+                                '#ffd740',
+                                '#ffe57f'
+                            ],
+                            borderColor: '#ffffff',
+                            borderWidth: 2,
+                            offset: 10
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'right',
+                                labels: {
+                                    padding: 20,
+                                    font: {
+                                        size: 12
+                                    }
+                                }
+                            }
+                        },
+                        cutout: '60%',
+                        radius: '90%'
+                    }
+                });
+            } catch (error) {
+                console.error('Error creating items chart:', error);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            createAddressChart();
+            createSalesChart();
+            createItemsChart();
+            
+            // Refresh data every 5 minutes
+            setInterval(() => {
+                createAddressChart();
+                createSalesChart();
+                createItemsChart();
+            }, 300000);
+        });
+    </script>
+</body>
+</html>
