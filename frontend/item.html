@@ -1098,13 +1098,12 @@
   
     <!-- Main JavaScript -->
   <script>
+        // Global variables
         let currentUser = null;
-const API_BASE_URL = 'http://localhost:3000/api';
-const baseUrl = 'http://localhost:3000/api/item/admin/all'; // Updated endpoint
-const categoryUrl = 'http://localhost:3000/api/category';
-const imageBaseUrl = 'http://localhost:3000/uploads/';
-
-// For individual item operations, use different endpoints:
+        const API_BASE_URL = '/api';
+        const baseUrl = '/api/item/admin';
+        const categoryUrl = '/api/category';
+        const imageBaseUrl = '/uploads/';
 
         // Check authentication on page load
         document.addEventListener('DOMContentLoaded', function() {
@@ -1805,164 +1804,54 @@ const imageBaseUrl = 'http://localhost:3000/uploads/';
       });
 
                 // Form submission handlers
-        // Updated create item handler with better debugging
-$('#itemSubmit').click(function (e) {
-    e.preventDefault();
-    
-    // Validate form
-    if (!$('#itemForm').valid()) {
-        showNotification('Please fill in all required fields correctly.', 'error');
-        return;
-    }
-    
-    // Log form data for debugging
-    const formData = new FormData($('#itemForm')[0]);
-    const token = localStorage.getItem('token');
-    
-    // Debug: Log all form data
-    console.log('Form submission data:');
-    for (let [key, value] of formData.entries()) {
-        console.log(key, value);
-    }
-    
-    // Show loading state
-    $(this).prop('disabled', true).text('Saving...');
-    
-    $.ajax({
-        url: 'http://localhost:3000/api/item/admin', // Use direct URL for create
-        method: 'POST',
-        data: formData,
-        contentType: false,
-        processData: false,
-        headers: {
-            'Authorization': 'Bearer ' + token
-        },
-        success: function (response) {
-            console.log('Create response:', response);
-            showNotification('Item created successfully!', 'success');
-            closeModal();
-            // Reset form
-            $('#itemForm')[0].reset();
-            $('#itemPreview').empty();
-            // Reload items
-            allItems = []; // Force reload from server
-            loadItems(1);
-        },
-        error: function (xhr, status, error) {
-            console.error('Create error details:', {
-                xhr: xhr,
-                status: status,
-                error: error,
-                responseText: xhr.responseText,
-                statusCode: xhr.status
+        $('#itemSubmit').click(function (e) {
+            e.preventDefault();
+            
+            // Validate form
+            if (!$('#itemForm').valid()) {
+                showNotification('Please fill in all required fields correctly.', 'error');
+                return;
+            }
+            
+            const formData = new FormData($('#itemForm')[0]);
+            const token = localStorage.getItem('token');
+            
+            // Show loading state
+            $(this).prop('disabled', true).text('Saving...');
+            
+            $.ajax({
+                url: baseUrl,
+                method: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                headers: {
+                    'Authorization': 'Bearer ' + token
+                },
+                success: function (response) {
+                    console.log('Create response:', response);
+                    showNotification('Item created successfully!', 'success');
+                    closeModal();
+                    loadItems(1); // Reload data and apply filters
+                },
+                error: function (xhr, status, error) {
+                    console.error('Create error:', {xhr, status, error});
+                    let errorMessage = 'Item creation failed.';
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+                        if (response.message) {
+                            errorMessage = response.message;
+                        }
+                    } catch (e) {
+                        // Use default error message
+                    }
+                    showNotification(errorMessage, 'error');
+                },
+                complete: function() {
+                    $('#itemSubmit').prop('disabled', false).text('Save');
+                }
             });
-            
-            let errorMessage = 'Item creation failed.';
-            
-            try {
-                const response = JSON.parse(xhr.responseText);
-                if (response.error) {
-                    errorMessage = response.error;
-                } else if (response.message) {
-                    errorMessage = response.message;
-                }
-            } catch (e) {
-                console.error('Could not parse error response:', e);
-                if (xhr.status === 413) {
-                    errorMessage = 'File too large. Please select smaller images.';
-                } else if (xhr.status === 401) {
-                    errorMessage = 'Authentication failed. Please log in again.';
-                } else if (xhr.status === 403) {
-                    errorMessage = 'Permission denied. Admin access required.';
-                } else {
-                    errorMessage = `Server error (${xhr.status}). Please try again.`;
-                }
-            }
-            
-            showNotification(errorMessage, 'error');
-        },
-        complete: function() {
-            $('#itemSubmit').prop('disabled', false).text('Save');
-        }
-    });
-});
-
-// Also update the form validation to be more specific
-function setupFormValidation() {
-    $('#itemForm').validate({
-        rules: {
-            item_name: {
-                required: true,
-                minlength: 2,
-                maxlength: 100
-            },
-            description: {
-                required: true,
-                minlength: 10,
-                maxlength: 500
-            },
-            sell_price: {
-                required: true,
-                number: true,
-                min: 0.01
-            },
-            cost_price: {
-                required: true,
-                number: true,
-                min: 0.01
-            },
-            quantity: {
-                required: true,
-                digits: true,
-                min: 0
-            },
-            category_id: {
-                required: true
-            }
-        },
-        messages: {
-            item_name: {
-                required: "Please enter an item name",
-                minlength: "Item name must be at least 2 characters long",
-                maxlength: "Item name cannot exceed 100 characters"
-            },
-            description: {
-                required: "Please enter a description",
-                minlength: "Description must be at least 10 characters long",
-                maxlength: "Description cannot exceed 500 characters"
-            },
-            sell_price: {
-                required: "Please enter a sell price",
-                number: "Please enter a valid number",
-                min: "Sell price must be greater than 0"
-            },
-            cost_price: {
-                required: "Please enter a cost price",
-                number: "Please enter a valid number",
-                min: "Cost price must be greater than 0"
-            },
-            quantity: {
-                required: "Please enter a quantity",
-                digits: "Please enter a valid whole number",
-                min: "Quantity must be 0 or greater"
-            },
-            category_id: {
-                required: "Please select a category"
-            }
-        },
-        errorElement: 'span',
-        errorClass: 'text-danger',
-        highlight: function(element) {
-            $(element).addClass('is-invalid');
-        },
-        unhighlight: function(element) {
-            $(element).removeClass('is-invalid');
-        },
-        errorPlacement: function(error, element) {
-            error.insertAfter(element);
-        }
-    });
-}
+        });
 
                 $('#itemUpdate').click(function (e) {
             e.preventDefault();

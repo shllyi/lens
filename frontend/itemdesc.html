@@ -436,43 +436,92 @@
             
             if (!itemId) {
                 $('#loading').hide();
-                $('#error').show().find('h4').text('No Product Selected').end().find('p').text('Please select a product to view its details.');
+                $('#error')
+                    .show()
+                    .find('h4').text('No Product Selected').end()
+                    .find('p').text('Please select a product to view its details.');
                 return;
             }
 
+            // Show loading state
+            $('#loading').show();
+            $('#error').hide();
+
             fetch(`/api/item/${itemId}`)
-                .then(res => res.json())
-                .then(data => {
-                    $('#loading').hide();
+                .then(async res => {
+                    const data = await res.json();
                     
-                    if (data.success && data.result && data.result.length > 0) {
-                        const item = data.result[0];
-                        displayProduct(item);
+                    if (!res.ok) {
+                        throw new Error(data.error || 'Failed to load product');
+                    }
+                    
+                    if (data.success && data.data) {
+                        displayProduct(data.data);
                     } else {
-                        $('#error').show();
+                        throw new Error('Invalid product data received');
                     }
                 })
                 .catch(err => {
-                    $('#loading').hide();
-                    $('#error').show();
                     console.error('Error loading product:', err);
+                    $('#error')
+                        .show()
+                        .find('h4').text('Product Not Available').end()
+                        .find('p').text(err.message || 'The requested product could not be loaded. Please try again later.');
+                })
+                .finally(() => {
+                    $('#loading').hide();
                 });
         }
 
         // Display product information
         function displayProduct(item) {
-            // Set product details
-            $('#product-name').text(item.item_name);
-            $('#product-sku').text(`SKU: ${item.item_id || 'N/A'}`);
-            $('#product-description-text').text(item.description || 'No description available.');
-            
-            // Set prices
-            if (item.cost_price && item.sell_price && parseFloat(item.cost_price) > parseFloat(item.sell_price)) {
-                $('#old-price').text(`₱${parseFloat(item.cost_price).toFixed(2)}`);
-            } else {
-                $('#old-price').hide();
+            try {
+                // Set basic product details
+                $('#product-name').text(item.item_name || 'Product Name');
+                $('#product-sku').text(`SKU: ${item.item_id || 'N/A'}`);
+                
+                // Set description or show placeholder
+                const description = item.description || 'No description available.';
+                $('#product-description-text').html(description.replace(/\n/g, '<br>'));
+                
+                // Set prices and availability
+                const inStock = parseInt(item.quantity || 0) > 0;
+                
+                // Set pricing display
+                if (item.cost_price && item.sell_price && parseFloat(item.cost_price) > parseFloat(item.sell_price)) {
+                    $('#old-price').text(`₱${parseFloat(item.cost_price).toFixed(2)}`).show();
+                    $('#current-price').text(`₱${parseFloat(item.sell_price).toFixed(2)}`);
+                } else {
+                    $('#old-price').hide();
+                    $('#current-price').text(`₱${parseFloat(item.sell_price || 0).toFixed(2)}`);
+                }
+                
+                // Set stock status
+                const stockStatus = inStock ? 'In Stock' : 'Out of Stock';
+                const stockClass = inStock ? 'text-success' : 'text-danger';
+                $('#stock-status').text(stockStatus).removeClass('text-success text-danger').addClass(stockClass);
+                
+                // Enable/disable add to cart button based on stock
+                $('#add-to-cart').prop('disabled', !inStock);
+                
+                // Set up product images carousel if images exist
+                if (item.all_images && item.all_images.length > 0) {
+                    createCarousel(item);
+                } else {
+                    // Show placeholder image if no images available
+                    $('.product-image').html('<img src="/assets/images/placeholder.jpg" alt="No image available" class="img-fluid">');
+                }
+                
+                // Show the product container
+                $('#product-container').show();
+                
+            } catch (error) {
+                console.error('Error displaying product:', error);
+                $('#error')
+                    .show()
+                    .find('h4').text('Error Displaying Product').end()
+                    .find('p').text('There was an error displaying the product details. Please try again.');
             }
-            $('#new-price').text(`₱${parseFloat(item.sell_price || 0).toFixed(2)}`);
             
             // Set stock status
             const isInStock = item.quantity > 0;

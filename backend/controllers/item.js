@@ -135,52 +135,22 @@ const getAllItemsWithStock = (req, res) => {
 // Get single item
 const getSingleItem = (req, res) => {
   const sql = `
-    SELECT 
-      i.*, 
-      COALESCE(s.quantity, 0) as quantity, 
-      GROUP_CONCAT(ii.image_path) AS extra_images,
-      c.description as category_name
+    SELECT i.*, s.quantity, GROUP_CONCAT(ii.image_path) AS extra_images
     FROM item i
-    LEFT JOIN stock s ON i.item_id = s.item_id
+    INNER JOIN stock s ON i.item_id = s.item_id
     LEFT JOIN item_images ii ON i.item_id = ii.item_id
-    LEFT JOIN category c ON i.category_id = c.category_id
-    WHERE i.item_id = ? AND i.deleted_at IS NULL
+    WHERE i.item_id = ?
     GROUP BY i.item_id
   `;
-  
   db.query(sql, [req.params.id], (err, result) => {
-    if (err) {
-      console.error('Database error:', err);
-      return res.status(500).json({ 
-        success: false, 
-        message: 'Database error',
-        error: process.env.NODE_ENV === 'development' ? err.message : undefined
-      });
-    }
-
-    if (!result || result.length === 0) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'Product not found or has been removed' 
-      });
-    }
+    if (err) return res.status(500).json({ error: 'Database error', details: err });
 
     const item = result[0];
     const extra = item.extra_images ? item.extra_images.split(',').filter(Boolean) : [];
     const all = [item.image, ...extra].filter(Boolean);
-    
-    // Format the response to match what the frontend expects
-    const formattedItem = {
-      ...item,
-      all_images: all,
-      // Ensure we have a default quantity of 0 if not in stock
-      quantity: item.quantity || 0
-    };
+    item.all_images = all;
 
-    return res.status(200).json({ 
-      success: true, 
-      result: [formattedItem] 
-    });
+    return res.status(200).json({ success: true, result: [item] });
   });
 };
 
