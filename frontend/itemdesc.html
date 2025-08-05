@@ -338,77 +338,17 @@
     <!-- Header -->
     <div id="header"></div>
 
-    <!-- Product Section -->
-    <section class="product-section">
-        <div class="product-container">
-            <!-- Loading State -->
-            <div id="loading" class="loading-state">
-                <div class="loading-spinner">Loading Product Details...</div>
-            </div>
-
-            <!-- Error State -->
-            <div id="error" class="error-message" style="display:none;">
-                <i class="bi bi-exclamation-triangle"></i>
-                <h4>Product Not Found</h4>
-                <p>The product you're looking for doesn't exist or has been removed.</p>
-            </div>
-
-            <!-- Product Content -->
-            <div id="product-content" style="display:none;">
-                <div class="product-grid">
-                    <!-- Product Images -->
-                    <div class="product-carousel">
-                        <div id="carousel-container"></div>
-                    </div>
-
-                    <!-- Product Details -->
-                    <div class="product-details">
-                        <h1 id="product-name" class="product-title"></h1>
-                        <div id="product-sku" class="product-sku"></div>
-                        
-                        <div class="product-price">
-                            <span id="old-price" class="price-original"></span>
-                            <span id="new-price" class="price-current"></span>
-                        </div>
-
-                        <div class="stock-status">
-                            <span id="stock-badge" class="stock-badge"></span>
-                            <div id="stock-quantity" class="stock-quantity"></div>
-                        </div>
-
-                        <div class="product-description">
-                            <h5>Description</h5>
-                            <p id="product-description-text"></p>
-                        </div>
-
-                        <div class="add-to-cart-section">
-                            <div class="quantity-controls">
-                                <span class="quantity-label">Quantity:</span>
-                                <div class="quantity-input-group">
-                                    <button class="quantity-btn" id="decrease-qty">-</button>
-                                    <input type="number" class="quantity-input" id="quantity-input" value="1" min="1" max="99">
-                                    <button class="quantity-btn" id="increase-qty">+</button>
-                                </div>
-                            </div>
-                            <button class="btn-add-cart" id="add-to-cart-btn">
-                                Add to Cart
-                            </button>
-                        </div>
-                    </div>
+    <!-- Reviews Section -->
+    <section class="container mt-5">
+        <h2 class="mb-4">Customer Reviews</h2>
+        <div id="reviewsContainer">
+            <!-- Reviews will be loaded here -->
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
                 </div>
+                <p class="mt-2">Loading reviews...</p>
             </div>
-        </div>
-    </section>
-
-    <!-- Product Reviews Section -->
-    <section class="product-section" id="reviews-section" style="padding-top: 0;">
-        <div class="product-container">
-            <h3 class="mb-4" style="font-weight:400;letter-spacing:2px;">Customer Reviews</h3>
-            <div id="reviews-loading" class="loading-state">
-                <div class="loading-spinner">Loading Reviews...</div>
-            </div>
-            <div id="reviews-list" style="display:none;"></div>
-            <div id="no-reviews" class="text-center text-muted" style="display:none;">No reviews yet for this product.</div>
         </div>
     </section>
 
@@ -430,258 +370,20 @@
             $('#cart-count').text(totalQty);
         }
 
-        // Load product details
-        function loadProductDetails() {
-            const itemId = getQueryParam('id');
-            
-            if (!itemId) {
-                $('#loading').hide();
-                $('#error')
-                    .show()
-                    .find('h4').text('No Product Selected').end()
-                    .find('p').text('Please select a product to view its details.');
-                return;
-            }
-
-            // Show loading state
-            $('#loading').show();
-            $('#error').hide();
-
-            fetch(`/api/item/${itemId}`)
-                .then(async res => {
-                    const data = await res.json();
-                    
-                    if (!res.ok) {
-                        throw new Error(data.error || 'Failed to load product');
-                    }
-                    
-                    if (data.success && data.data) {
-                        displayProduct(data.data);
-                    } else {
-                        throw new Error('Invalid product data received');
-                    }
-                })
-                .catch(err => {
-                    console.error('Error loading product:', err);
-                    $('#error')
-                        .show()
-                        .find('h4').text('Product Not Available').end()
-                        .find('p').text(err.message || 'The requested product could not be loaded. Please try again later.');
-                })
-                .finally(() => {
-                    $('#loading').hide();
-                });
-        }
-
-        // Display product information
-        function displayProduct(item) {
-            try {
-                // Set basic product details
-                $('#product-name').text(item.item_name || 'Product Name');
-                $('#product-sku').text(`SKU: ${item.item_id || 'N/A'}`);
-                
-                // Set description or show placeholder
-                const description = item.description || 'No description available.';
-                $('#product-description-text').html(description.replace(/\n/g, '<br>'));
-                
-                // Set prices and availability
-                const inStock = parseInt(item.quantity || 0) > 0;
-                
-                // Set pricing display
-                if (item.cost_price && item.sell_price && parseFloat(item.cost_price) > parseFloat(item.sell_price)) {
-                    $('#old-price').text(`₱${parseFloat(item.cost_price).toFixed(2)}`).show();
-                    $('#current-price').text(`₱${parseFloat(item.sell_price).toFixed(2)}`);
-                } else {
-                    $('#old-price').hide();
-                    $('#current-price').text(`₱${parseFloat(item.sell_price || 0).toFixed(2)}`);
-                }
-                
-                // Set stock status
-                const stockStatus = inStock ? 'In Stock' : 'Out of Stock';
-                const stockClass = inStock ? 'text-success' : 'text-danger';
-                $('#stock-status').text(stockStatus).removeClass('text-success text-danger').addClass(stockClass);
-                
-                // Enable/disable add to cart button based on stock
-                $('#add-to-cart').prop('disabled', !inStock);
-                
-                // Set up product images carousel if images exist
-                if (item.all_images && item.all_images.length > 0) {
-                    createCarousel(item);
-                } else {
-                    // Show placeholder image if no images available
-                    $('.product-image').html('<img src="/assets/images/placeholder.jpg" alt="No image available" class="img-fluid">');
-                }
-                
-                // Show the product container
-                $('#product-container').show();
-                
-            } catch (error) {
-                console.error('Error displaying product:', error);
-                $('#error')
-                    .show()
-                    .find('h4').text('Error Displaying Product').end()
-                    .find('p').text('There was an error displaying the product details. Please try again.');
-            }
-            
-            // Set stock status
-            const isInStock = item.quantity > 0;
-            const stockBadge = $('#stock-badge');
-            const stockQuantity = $('#stock-quantity');
-            
-            if (isInStock) {
-                stockBadge.removeClass('out-of-stock').addClass('in-stock').text('In Stock');
-                stockQuantity.text(`Only ${item.quantity} left in stock`);
-            } else {
-                stockBadge.removeClass('in-stock').addClass('out-of-stock').text('Out of Stock');
-                stockQuantity.text('This item is currently unavailable');
-            }
-            
-            // Set max quantity
-            $('#quantity-input').attr('max', item.quantity || 99);
-            
-            // Create carousel
-            createCarousel(item);
-            
-            // Show product content
-            $('#product-content').show();
-        }
-
-        // Create product carousel
-        function createCarousel(item) {
-            const images = (item.all_images && item.all_images.length) ? item.all_images : [item.image || 'default.jpg'];
-            const carouselId = 'productCarousel';
-            
-            let carouselHtml = '';
-            
-            if (images.length === 1) {
-                carouselHtml = `
-                    <div class="carousel-square-frame">
-                        <img src="/uploads/${images[0]}" alt="${item.item_name}" style="width:100%;height:100%;object-fit:cover;">
-                    </div>
-                `;
-            } else {
-                carouselHtml = `
-                    <div id="${carouselId}" class="carousel slide" data-bs-ride="carousel">
-                        <div class="carousel-inner">
-                            ${images.map((img, idx) => `
-                                <div class="carousel-item${idx === 0 ? ' active' : ''}">
-                                    <div class="carousel-square-frame">
-                                        <img src="/uploads/${img}" alt="${item.item_name}">
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
-                        <button class="carousel-control-prev" type="button" data-bs-target="#${carouselId}" data-bs-slide="prev">
-                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                        </button>
-                        <button class="carousel-control-next" type="button" data-bs-target="#${carouselId}" data-bs-slide="next">
-                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                        </button>
-                    </div>
-                `;
-            }
-            
-            $('#carousel-container').html(carouselHtml);
-        }
-
-        // Quantity controls
-        function setupQuantityControls() {
-            $('#decrease-qty').on('click', function() {
-                const input = $('#quantity-input');
-                let value = parseInt(input.val());
-                if (value > 1) {
-                    input.val(value - 1);
-                }
-            });
-
-            $('#increase-qty').on('click', function() {
-                const input = $('#quantity-input');
-                let value = parseInt(input.val());
-                const max = parseInt(input.attr('max')) || 99;
-                if (value < max) {
-                    input.val(value + 1);
-                }
-            });
-
-            $('#quantity-input').on('input', function() {
-                let value = parseInt($(this).val());
-                const max = parseInt($(this).attr('max')) || 99;
-                
-                if (isNaN(value) || value < 1) {
-                    $(this).val(1);
-                } else if (value > max) {
-                    $(this).val(max);
-                }
-            });
-        }
-
-        // Add to cart functionality
-        function setupAddToCart() {
-            $('#add-to-cart-btn').on('click', function() {
-                const token = localStorage.getItem('token');
-                const userId = localStorage.getItem('userId');
-
-                if (!token || !userId) {
-                    alert('You must be logged in to add items to cart!');
-                    window.location.href = '/login.html';
-                    return;
-                }
-
-                const itemId = getQueryParam('id');
-                const quantity = parseInt($('#quantity-input').val());
-                const productName = $('#product-name').text();
-                const productPrice = parseFloat($('#new-price').text().replace('₱', ''));
-                const productImage = $('.carousel-square-frame img').first().attr('src').split('/').pop();
-
-                const product = {
-                    id: itemId,
-                    name: productName,
-                    price: productPrice,
-                    image_path: productImage,
-                    quantity: quantity
-                };
-
-                let cart = JSON.parse(localStorage.getItem('cart')) || [];
-                const existingItem = cart.find(item => item.id === product.id);
-                
-                if (existingItem) {
-                    existingItem.quantity += quantity;
-                } else {
-                    cart.push(product);
-                }
-
-                localStorage.setItem('cart', JSON.stringify(cart));
-                updateCartCount();
-
-                const $btn = $(this);
-                $btn.addClass('added').text('Added to Cart').prop('disabled', true);
-                
-                setTimeout(() => {
-                    $btn.removeClass('added').text('Add to Cart').prop('disabled', false);
-                }, 2000);
-            });
-        }
-
         // Load product reviews
         function loadProductReviews(itemId) {
-            $('#reviews-loading').show();
-            $('#reviews-list').hide();
-            $('#no-reviews').hide();
-            
+            $('#reviewsContainer').html('');
             fetch(`/api/reviews/item/${itemId}`)
                 .then(res => res.json())
                 .then(data => {
-                    $('#reviews-loading').hide();
                     if (data.success && data.data && data.data.length > 0) {
                         renderReviews(data.data);
-                        $('#reviews-list').show();
                     } else {
-                        $('#no-reviews').show();
+                        $('#reviewsContainer').html('<p>No reviews yet for this product.</p>');
                     }
                 })
                 .catch(err => {
-                    $('#reviews-loading').hide();
-                    $('#no-reviews').show().text('Failed to load reviews.');
+                    $('#reviewsContainer').html('<p>Failed to load reviews.</p>');
                     console.error('Error loading reviews:', err);
                 });
         }
@@ -716,31 +418,27 @@
                 </div>
                 `;
             });
-            $('#reviews-list').html(html);
+            $('#reviewsContainer').html(html);
         }
 
         // Initialize page
         $(document).ready(function() {
             // Load header
             $('#header').load('/header.html', function() {
-                // Force update the navbar to show correct auth state
-                if (typeof updateNavbar === 'function') {
-                    updateNavbar();
-                }
-                updateCartCount();
-                
-                // Setup event handlers
-                setupQuantityControls();
-                setupAddToCart();
-                
-                // Load product details
-                loadProductDetails();
-                
-                // Load reviews after product details (need itemId)
+                // Initialize tooltips
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl);
+                });
+
+                // Load product details just to get the item ID for reviews
                 const itemId = getQueryParam('id');
                 if (itemId) {
                     loadProductReviews(itemId);
                 }
+                
+                // Update cart count
+                updateCartCount();
             });
         });
     </script>
